@@ -1,15 +1,72 @@
-# TEC Domain App Template — Claude Code Instructions
+# TEC Legend — Claude Code Instructions
 
-## What This Repo Is
+> ⚡ **SESSION START:** اقرأ `knowledge-base/C-02___CURRENT_STATE_.md` + **app charter
+> `knowledge-base/C-126___LEGEND_REPUTATION_RUNTIME.md`** من `yasira82/tec-knowledge-base` (branch: `main`).
 
-The **golden starter template** for a new app in the TEC Federated Platform.
-It ships a correct, Portal-ready skeleton: Hub SSO, dual-mode Pi payments,
-CSRF, legal pages, and CI policy guards. Clone it, run the "New app setup"
-checklist below, and you have a compliant app — no missing pieces.
+## What This App Is
 
-**Reference of record:** `yasira82/tec-knowledge-base` — especially
-`C-12_Dual_Mode_Payment.md` (payment + anti-regression) and
-`audits/PORTAL_SUBMISSION_RUNBOOK_*.md`.
+**The Reputation Runtime** of the Pi economy (C-126) — the **System of
+Evidence**. Legend answers one question:
+
+```
+"What have you achieved?"
+```
+
+Legend transforms verified economic activity into a **permanent, portable,
+evidence-based reputation** that follows every Pi user across the ecosystem. It is
+the base of the value chain **Legend (evidence) → Elite (recognition) → VIP
+(experience)**.
+
+Built from `tec-template-base` (Next.js 15 frontend).
+
+**Current Phase: Legend V0/V1 — Reputation preview (read-only).** Identity /
+domain / slug / legal + a themed **reputation profile** (overall + dimensional
+scores · achievements with evidence source · Zone-verified flags · badges) +
+a `/achievement/[id]` detail page + **Legend Pro** (the Pi Portal "Process a
+Transaction" gate). Real profiles (Analytics scores + source-app records) are
+Phase 2. Not yet deployed.
+
+---
+
+## Pi App Identity
+
+| Field | Value |
+|-------|-------|
+| **App** | TEC Legend |
+| **Domain** | `https://legend.tecosystem.app` |
+| **Pi App ID** | ⏳ TBD — register at Pi Developer Portal · then Vercel `NEXT_PUBLIC_PI_APP_ID` |
+| **APP_SOURCE slug** | `legend` (payment-service resolves `PI_API_KEY_LEGEND`) |
+| **PI_SANDBOX** | `false` (Mainnet) |
+
+---
+
+## Legend-Specific Rules (C-126)
+
+### 🔴 Constitutional rule — Legend records OUTCOMES, not CLAIMS
+A user can **NEVER** add an achievement manually. Every Legend record originates
+from **verified activity** in Commerce/Assets/FundX/Epic/Connection + Zone-verified
+milestones, and scores are **computed by Analytics**. Legend is the **READ layer**
+of economic achievement; every other app is the **write layer**. This is what
+prevents gaming, fraud, and self-promotion — Legend is only as trustworthy as the
+sources that feed it.
+
+### The ownership boundary
+Legend **OWNS**: achievement records (read), reputation dimensions, the Pi
+Professional CV, badges, public profile. Legend does **NOT OWN**:
+- **Score computation** → Analytics computes scores from raw data.
+- **Verification** → Zone verifies before Legend records.
+- **Identity** → Hub. **Recognition** → Elite (C-127). **Benefits** → VIP (C-128).
+- **Live activity** → Commerce/Assets/FundX own live data (Legend references by ID).
+
+### Immutability + privacy
+Achievement records are **append-only** (immutable — a scored can be hidden, a
+record never modified). Profile visibility is user-controlled (PUBLIC / CONNECTIONS
+/ PRIVATE). Identity from the `tec_user` session cookie server-side — **never** a
+query param or body (P6). No session → own-scope fails closed.
+
+**Reference of record:** `yasira82/tec-knowledge-base` —
+`C-126___LEGEND_REPUTATION_RUNTIME.md` (charter) + `C-12_Dual_Mode_Payment.md`
+(payment anti-regression) + `C-123` (session/cookies).
 
 ---
 
@@ -43,6 +100,8 @@ if (isHubNavigation() || !(window as any).Pi || !piReady) {
 }
 // Mode 2: standalone — createPaymentRecord() then createU2APayment() (src/lib/pi-payment.ts)
 ```
+> Legend Pro (subscription) is the only buy flow. Approve under `PI_API_KEY_LEGEND`
+> (never the default Hub key — the Analytics approve→502 lesson, C-12 §11).
 
 ### ADR-009 — Unified payment contract
 `amount` is a **number**; gateway path is **`/api/payment/*`** (singular); the only
@@ -61,67 +120,53 @@ Identity is derived from the `tec_user` cookie server-side — **never from the 
 
 ---
 
-## What's included
+## Setup status + Roadmap (C-126)
 
 ```
-middleware.ts                              CSRF (double-submit OR Origin) + page guard
-src/app/api/auth/sso-callback/route.ts     Hub SSO landing (open-redirect-safe)
-src/app/api/auth/refresh/route.ts          token refresh
-src/app/api/bff/payment/{create,approve,complete,resolve-incomplete}/route.ts
-src/app/api/bff/items/route.ts             example domain route (copy this pattern)
-src/app/api/health/route.ts                health endpoint (C-92/C-96) — fail-safe, public, never 500s
-src/lib/pi-payment.ts                      createPaymentRecord + createU2APayment
-src/lib/pi/PiRuntime.ts                    PAL — single choke-point for window.Pi.* (R1)
-src/lib/pi/PiCircuitBreaker.ts             CLOSED→OPEN→HALF_OPEN (3 fails → 60s)
-src/lib/flags.ts                           feature flags (NEXT_PUBLIC_FLAG_*) + useFlag
-src/lib/observability/logger.ts            structured JSON logger (log.info/warn/error) — no silent failures (C-96)
-src/lib/observability/reportError.ts       Sentry-ready error reporter (single swap-point)
-src/app/privacy/page.tsx · terms/page.tsx  Pi Portal legal pages
-src/styles/tec-design-tokens.css           import in app/layout.tsx
-.github/workflows/ci.yml                   payment-policy + CSRF guard + lint/typecheck/test/build
-```
+Legend V0/V1 — Reputation preview (customized from template):
+  ✅ package.json name = tec-legend · APP_SOURCE = 'legend'
+  ✅ sso-callback ALLOWED_AUDIENCES → legend.tecosystem.app + tec-legend.vercel.app
+  ✅ privacy + terms → TEC Legend / legend.tecosystem.app
+  ✅ NEW-A: no NEXT_PUBLIC_API_GATEWAY_URL / Railway host in the client bundle
+  ✅ /app themed: reputation profile (scores + achievements + badges) + Legend Pro (real Pi U2A)
+  ✅ /achievement/[id] detail (evidence source + Zone-verified) + BFF /api/bff/legend/profile
 
-**v2 (production-ready by default):** every new app ships
-- `/api/health` — uniform C-92 signal (platform health runtime + observability scrape + SLO/runtime-evidence loop);
-- structured `log` + `reportError` — use `log.error`/`reportError` in catch blocks (a silent error handler is an invisible failure, C-96; `reportError` is the one place to wire Sentry per app);
-- `PiRuntime` (PAL) + `PiCircuitBreaker` — never call `window.Pi.*` directly; go through PiRuntime so an SDK change is a one-file fix (R1) and flapping is contained;
-- `flags.ts` — feature flags from day one (`NEXT_PUBLIC_FLAG_<NAME>`);
-- coverage gate — `npm run test:coverage` (add devDep `@vitest/coverage-v8`; 60% floor, raise as the app grows).
+Next (before live):
+  □ Register Pi App ID (Pi Developer Portal) → Vercel NEXT_PUBLIC_PI_APP_ID +
+    API_GATEWAY_URL · INTERNAL_SECRET · SSO_SECRET · PI_SANDBOX=false.
+  □ payment-service: set PI_API_KEY_LEGEND on Railway (approve→502 otherwise, C-12 §11).
+  □ Hub SSO: add legend.tecosystem.app + tec-legend.vercel.app to Hub /api/auth/sso
+    ALLOWED_TARGETS + Hub domain registry.
+  □ Deploy (Vercel) + runtime-verify login (C-123) + a real Legend Pro payment
+    Mode 1 (Hub) AND Mode 2 (standalone).
 
----
-
-## New app setup checklist
-
-```
-□ package.json: set "name"
-□ middleware.ts: adjust PROTECTED_ROUTES
-□ sso-callback/route.ts: set ALLOWED_AUDIENCES + DEFAULT_REDIRECT to your domain
-□ src/lib/pi-payment.ts + payment/create: set APP_SOURCE slug
-□ privacy/page.tsx + terms/page.tsx: set APP / DOMAIN / governing law / contacts
-□ Add ADR-007 isHubNavigation() guard to every buy handler
-□ .env: API_GATEWAY_URL · INTERNAL_SECRET · SSO_SECRET · NEXT_PUBLIC_PI_APP_ID · PI_SANDBOX=false (prod)
-□ Pi Developer Portal: register domain + App ID; set /privacy + /terms URLs
-□ Verify a real Pi payment Mode 1 (via Hub) AND Mode 2 (standalone)
+Legend V1+ (post-Portal — C-126): consume Redis Streams (payment.completed.v1,
+  epic.project.completed.v1, fundx.investment.closed.v1, zone.badge.issued.v1,
+  connection.milestone.v1) → Analytics-computed scores → Pi Professional CV export
+  → embeddable badges. Gated on Analytics + Zone operational + 1k users.
 ```
 
 ---
 
 ## What NOT To Do
 
+- Do NOT let a user add/edit achievements — Legend records outcomes only (READ layer, C-126)
+- Do NOT compute scores in Legend — Analytics computes; Legend serves
+- Do NOT mint verification — present Zone's verified flag, never create it
+- Do NOT modify a record — achievements are append-only (immutable)
 - Do NOT validate CSRF in a route handler — middleware only (CI blocks it)
 - Do NOT send `amount` as a string, or use `/payments` / `x-service-secret`
 - Do NOT skip the ADR-007 `isHubNavigation()` guard before `window.Pi`
 - Do NOT store tokens in localStorage; do NOT derive identity from the body
 - Do NOT add `NEXT_PUBLIC_*` for internal service URLs or `INTERNAL_SECRET`
-- Do NOT use an open `redirect` param without the same-origin guard (open redirect)
 
 ---
 
 ## Commit Convention
 
 ```
-feat(scope):  new feature      fix(payment): payment flow fix (test carefully)
-fix(scope):   bug fix          chore(scope): build/config
+feat(legend):  new reputation feature   fix(payment): payment flow fix (test carefully)
+fix(legend):   bug fix                   chore(scope):  build/config
 ```
 
 ---
