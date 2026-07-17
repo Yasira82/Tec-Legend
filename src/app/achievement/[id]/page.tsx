@@ -2,15 +2,20 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { TEC_COLORS } from '@yasser172/tec-ui';
-import { PROFILE, getAchievement, SOURCE_META } from '@/lib/legend/profile';
+import { PROFILE, SOURCE_META } from '@/lib/legend/profile';
+import { resolveAchievement } from '@/lib/legend/server';
 
+// Pre-render the curated sample slugs; allow live-only backend records to render on
+// demand (Legend is the read layer of record — C-126).
 export function generateStaticParams() {
   return PROFILE.achievements.map((a) => ({ id: a.id }));
 }
+export const dynamicParams = true;
 
 export default async function AchievementDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const a = getAchievement(id);
+  // Resolve from the live Legend read-layer; fall back to the curated sample.
+  const { achievement: a } = await resolveAchievement(id);
   if (!a) notFound();
 
   const s = SOURCE_META[a.source];

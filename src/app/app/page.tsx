@@ -5,18 +5,42 @@
 // written by the source apps) + badges. Legend records OUTCOMES, not claims —
 // it is the READ layer; you can never add achievements manually.
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { TEC_COLORS } from '@yasser172/tec-ui';
-import { PROFILE, SCORE_DIMENSIONS, SOURCE_META } from '@/lib/legend/profile';
+import { PROFILE, SCORE_DIMENSIONS, SOURCE_META, type Profile } from '@/lib/legend/profile';
 import LegendPro from './components/LegendPro';
 
 export default function LegendHome() {
-  const p = PROFILE;
+  // Start from the curated sample (renders instantly / SSR); replaced by the
+  // caller's OWN live profile once the BFF responds (identity from the session,
+  // never a param — the BFF derives it). Falls back to the sample if none exists.
+  const [p, setP]           = useState<Profile>(PROFILE);
+  const [source, setSource] = useState<'sample' | 'live'>('sample');
+
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/bff/legend/profile', { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!alive || !d?.profile) return;
+        setP(d.profile as Profile);
+        setSource(d.source === 'live' ? 'live' : 'sample');
+      })
+      .catch(() => { /* keep the sample */ });
+    return () => { alive = false; };
+  }, []);
+
   return (
     <main style={{ minHeight: '100vh', background: TEC_COLORS.bg, color: '#e7e7ea', padding: '32px 22px', fontFamily: 'system-ui, sans-serif' }}>
       <div style={{ maxWidth: 900, margin: '0 auto' }}>
         <header style={{ marginBottom: 8 }}>
           <div style={{ fontSize: 34 }}>🏅</div>
-          <h1 style={{ color: TEC_COLORS.gold, margin: '4px 0 2px', fontSize: 26 }}>TEC Legend</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <h1 style={{ color: TEC_COLORS.gold, margin: '4px 0 2px', fontSize: 26 }}>TEC Legend</h1>
+            <span style={{ fontSize: 11, color: source === 'live' ? '#22C55E' : TEC_COLORS.gold, border: `1px solid ${(source === 'live' ? '#22C55E' : TEC_COLORS.gold)}55`, borderRadius: 999, padding: '2px 10px' }}>
+              {source === 'live' ? 'live profile' : 'sample'}
+            </span>
+          </div>
           <p style={{ opacity: 0.7, margin: 0, fontSize: 14 }}>
             Reputation Runtime — your Legend is not what you say you did; it&apos;s what the ecosystem confirms.
           </p>
@@ -82,7 +106,7 @@ export default function LegendHome() {
         <p style={{ opacity: 0.55, fontSize: 12, marginTop: 20, lineHeight: 1.6, borderLeft: `2px solid ${TEC_COLORS.gold}55`, paddingLeft: 12 }}>
           <strong>Read layer (C-126).</strong> Legend records outcomes, never claims — you can&apos;t add an
           achievement manually. Records are written by the source apps (Commerce · Epic · FundX · Connection ·
-          Assets) and verified by Zone; scores are computed by Analytics. Legend serves. Read-only sample.
+          Assets) and verified by Zone; scores are computed by Analytics. Legend serves — read-only{source === 'live' ? '.' : ' (sample).'}
         </p>
 
         {/* Legend Pro */}
