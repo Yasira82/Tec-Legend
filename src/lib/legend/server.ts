@@ -1,13 +1,13 @@
 import {
-  PROFILE, getAchievement,
   type Profile, type Achievement, type EvidenceSource,
 } from './profile';
 
 // Server-only Legend backend access (C-126). Calls the real Legend read-layer
 // (identity-service) via the gateway with the inter-service key, and maps the
-// backend rows to the frontend shape. Everything degrades to the curated sample so
-// the profile is never blank / never 500s. NEW-A: the gateway URL is server-only
-// (API_GATEWAY_URL) — never shipped to the client.
+// backend rows to the frontend shape. Real data end-to-end (C-135 §4): an
+// unreachable backend / no session resolves to `unavailable` (no profile) — it
+// NEVER serves a fabricated sample to the screen. NEW-A: the gateway URL is
+// server-only (API_GATEWAY_URL) — never shipped to the client.
 const GW = process.env.API_GATEWAY_URL ?? '';
 
 const gwHeaders = () => ({
@@ -52,11 +52,12 @@ function profileFromBackend(p: Record<string, unknown>): Profile {
   };
 }
 
-export interface ResolvedProfile { profile: Profile; source: 'live' | 'sample'; }
+export interface ResolvedProfile { profile: Profile | null; source: 'live' | 'unavailable'; }
 
-// The caller's OWN reputation profile — live backend first, curated sample as
-// fallback. `owner` is derived from the session by the BFF (never a client param,
-// P6); when absent or unknown, the sample profile is served so the page is never blank.
+// The caller's OWN reputation profile — live backend only. `owner` is derived from
+// the session by the BFF (never a client param, P6). No session or an unreachable
+// backend resolves to (profile: null, source: 'unavailable') so the page shows an
+// honest empty state — never a fabricated sample profile (C-135 §4).
 export async function resolveProfile(owner: string | null): Promise<ResolvedProfile> {
   if (GW && owner) {
     try {
@@ -68,15 +69,16 @@ export async function resolveProfile(owner: string | null): Promise<ResolvedProf
         const p = data?.data?.profile;
         if (p) return { profile: profileFromBackend(p as Record<string, unknown>), source: 'live' };
       }
-    } catch { /* fall through to the curated sample */ }
+    } catch { /* unreachable → unavailable below */ }
   }
-  return { profile: PROFILE, source: 'sample' };
+  return { profile: null, source: 'unavailable' };
 }
 
-export interface ResolvedAchievement { achievement: Achievement | null; source: 'live' | 'sample'; }
+export interface ResolvedAchievement { achievement: Achievement | null; source: 'live' | 'unavailable'; }
 
-// One achievement by slug — live backend first, sample fallback. A live 404 is
-// authoritative (achievement: null, source: 'live').
+// One achievement by slug — live backend only. A live 404 is authoritative
+// (achievement: null, source: 'live'); an unreachable backend resolves to
+// (achievement: null, source: 'unavailable'). Never a fabricated sample record.
 export async function resolveAchievement(id: string): Promise<ResolvedAchievement> {
   if (GW) {
     try {
@@ -89,7 +91,7 @@ export async function resolveAchievement(id: string): Promise<ResolvedAchievemen
         if (a) return { achievement: achievementFromBackend(a as Record<string, unknown>), source: 'live' };
       }
       if (res.status === 404) return { achievement: null, source: 'live' };
-    } catch { /* fall through to the curated sample */ }
+    } catch { /* unreachable → unavailable below */ }
   }
-  return { achievement: getAchievement(id), source: 'sample' };
+  return { achievement: null, source: 'unavailable' };
 }
