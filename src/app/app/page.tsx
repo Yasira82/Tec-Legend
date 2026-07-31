@@ -5,28 +5,33 @@
 // written by the source apps) + badges. Legend records OUTCOMES, not claims —
 // it is the READ layer; you can never add achievements manually.
 import Link from 'next/link';
+import { InviteCard } from '@/components/referral/InviteCard';
 import { useEffect, useState } from 'react';
 import { TEC_COLORS } from '@yasser172/tec-ui';
-import { PROFILE, SCORE_DIMENSIONS, SOURCE_META, type Profile } from '@/lib/legend/profile';
+import { SCORE_DIMENSIONS, SOURCE_META, type Profile } from '@/lib/legend/profile';
 import LegendPro from './components/LegendPro';
 
 export default function LegendHome() {
-  // Start from the curated sample (renders instantly / SSR); replaced by the
-  // caller's OWN live profile once the BFF responds (identity from the session,
-  // never a param — the BFF derives it). Falls back to the sample if none exists.
-  const [p, setP]           = useState<Profile>(PROFILE);
-  const [source, setSource] = useState<'sample' | 'live'>('sample');
+  // Real data end-to-end (C-135 §4): the caller's OWN live profile, or an honest
+  // empty state — never a fabricated sample. Identity is derived from the session
+  // by the BFF (never a client param, P6).
+  const [p, setP]           = useState<Profile | null>(null);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading');
 
   useEffect(() => {
     let alive = true;
     fetch('/api/bff/legend/profile', { credentials: 'include' })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
-        if (!alive || !d?.profile) return;
-        setP(d.profile as Profile);
-        setSource(d.source === 'live' ? 'live' : 'sample');
+        if (!alive) return;
+        if (d && d.source === 'live' && d.profile) {
+          setP(d.profile as Profile);
+          setStatus('ready');
+        } else {
+          setStatus('unavailable');   // no session / backend down — honest, no sample
+        }
       })
-      .catch(() => { /* keep the sample */ });
+      .catch(() => { if (alive) setStatus('unavailable'); });
     return () => { alive = false; };
   }, []);
 
@@ -37,15 +42,35 @@ export default function LegendHome() {
           <div style={{ fontSize: 34 }}>🏅</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <h1 style={{ color: TEC_COLORS.gold, margin: '4px 0 2px', fontSize: 26 }}>TEC Legend</h1>
-            <span style={{ fontSize: 11, color: source === 'live' ? '#22C55E' : TEC_COLORS.gold, border: `1px solid ${(source === 'live' ? '#22C55E' : TEC_COLORS.gold)}55`, borderRadius: 999, padding: '2px 10px' }}>
-              {source === 'live' ? 'live profile' : 'sample'}
-            </span>
+            {status === 'ready' && (
+              <span style={{ fontSize: 11, color: '#22C55E', border: '1px solid #22C55E55', borderRadius: 999, padding: '2px 10px' }}>
+                live profile
+              </span>
+            )}
           </div>
           <p style={{ opacity: 0.7, margin: 0, fontSize: 14 }}>
             Reputation Runtime — your Legend is not what you say you did; it&apos;s what the ecosystem confirms.
           </p>
         </header>
 
+        {status === 'loading' && (
+          <div style={{ marginTop: 28, padding: 40, textAlign: 'center', opacity: 0.6, fontSize: 14 }}>
+            Loading your reputation…
+          </div>
+        )}
+
+        {status === 'unavailable' && (
+          <section style={{ marginTop: 28, padding: '40px 24px', background: TEC_COLORS.surface, borderRadius: 14, textAlign: 'center' }}>
+            <div style={{ fontSize: 30 }}>🏅</div>
+            <div style={{ color: '#e7e7ea', fontWeight: 800, marginTop: 8, fontSize: 16 }}>No reputation profile yet</div>
+            <p style={{ opacity: 0.65, fontSize: 13.5, lineHeight: 1.6, maxWidth: 420, margin: '8px auto 0' }}>
+              Sign in with Pi to see your Legend. Your reputation is built from verified activity across the
+              ecosystem (Commerce · Epic · FundX · Connection · Assets) — it appears here once you have records.
+            </p>
+          </section>
+        )}
+
+        {status === 'ready' && p && (<>
         {/* Overall + identity */}
         <section style={{ marginTop: 24, padding: 20, background: TEC_COLORS.surface, borderRadius: 14, display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center' }}>
           <div style={{ textAlign: 'center' }}>
@@ -106,12 +131,14 @@ export default function LegendHome() {
         <p style={{ opacity: 0.55, fontSize: 12, marginTop: 20, lineHeight: 1.6, borderLeft: `2px solid ${TEC_COLORS.gold}55`, paddingLeft: 12 }}>
           <strong>Read layer (C-126).</strong> Legend records outcomes, never claims — you can&apos;t add an
           achievement manually. Records are written by the source apps (Commerce · Epic · FundX · Connection ·
-          Assets) and verified by Zone; scores are computed by Analytics. Legend serves — read-only{source === 'live' ? '.' : ' (sample).'}
+          Assets) and verified by Zone; scores are computed by Analytics. Legend serves — read-only.
         </p>
+        </>)}
 
         {/* Legend Pro */}
         <h2 style={{ color: TEC_COLORS.gold, fontSize: 16, marginTop: 32, marginBottom: 12 }}>Upgrade</h2>
         <LegendPro />
+        <InviteCard />
       </div>
     </main>
   );
