@@ -24,7 +24,7 @@ domain / slug / legal + a themed **reputation profile** (overall + dimensional
 scores · achievements with evidence source · Zone-verified flags · badges) +
 a `/achievement/[id]` detail page + **Legend Pro** (the Pi Portal "Process a
 Transaction" gate). Real profiles (Analytics scores + source-app records) are
-Phase 2. Not yet deployed.
+Phase 2. Deployed (Mainnet) · Pi App ID registered · env set · payment live · referral growth loop wired (C-133).
 
 ---
 
@@ -34,7 +34,7 @@ Phase 2. Not yet deployed.
 |-------|-------|
 | **App** | TEC Legend |
 | **Domain** | `https://legend.tecosystem.app` |
-| **Pi App ID** | ⏳ TBD — register at Pi Developer Portal · then Vercel `NEXT_PUBLIC_PI_APP_ID` |
+| **Pi App ID** | ✅ Registered (Mainnet) · Vercel `NEXT_PUBLIC_PI_APP_ID` |
 | **APP_SOURCE slug** | `legend` (payment-service resolves `PI_API_KEY_LEGEND`) |
 | **PI_SANDBOX** | `false` (Mainnet) |
 

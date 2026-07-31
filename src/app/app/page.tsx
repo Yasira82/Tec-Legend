@@ -5,6 +5,7 @@
 // written by the source apps) + badges. Legend records OUTCOMES, not claims —
 // it is the READ layer; you can never add achievements manually.
 import Link from 'next/link';
+import { InviteCard } from '@/components/referral/InviteCard';
 import { useEffect, useState } from 'react';
 import { TEC_COLORS } from '@yasser172/tec-ui';
 import { SCORE_DIMENSIONS, SOURCE_META, type Profile } from '@/lib/legend/profile';
@@ -137,6 +138,7 @@ export default function LegendHome() {
         {/* Legend Pro */}
         <h2 style={{ color: TEC_COLORS.gold, fontSize: 16, marginTop: 32, marginBottom: 12 }}>Upgrade</h2>
         <LegendPro />
+        <InviteCard />
       </div>
     </main>
   );
