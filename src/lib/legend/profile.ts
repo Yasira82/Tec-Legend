@@ -39,7 +39,10 @@ export interface Badge {
   tone:  string;
 }
 
+export type Visibility = 'PUBLIC' | 'CONNECTIONS' | 'PRIVATE';
+
 export interface Profile {
+  handle?:     string;    // the owner's Pi username — used to build the shareable /u/<handle> link
   displayName: string;
   joinedAt:    string;
   scores:      ScoreSet;
@@ -47,6 +50,7 @@ export interface Profile {
   badges:       Badge[];
   totalPiVolume: number;
   yearsActive:   number;
+  visibility?: Visibility; // user-controlled (C-126) — only present on the owner's own view
 }
 
 // ── Sample profile (when live: scores computed by Analytics, records written by source apps) ──
