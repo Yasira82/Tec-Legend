@@ -10,13 +10,14 @@ import { useEffect, useState } from 'react';
 import { TEC_COLORS } from '@yasser172/tec-ui';
 import { SCORE_DIMENSIONS, SOURCE_META, type Profile } from '@/lib/legend/profile';
 import LegendPro from './components/LegendPro';
+import ProfileControls from './components/ProfileControls';
 
 export default function LegendHome() {
   // Real data end-to-end (C-135 §4): the caller's OWN live profile, or an honest
   // empty state — never a fabricated sample. Identity is derived from the session
   // by the BFF (never a client param, P6).
   const [p, setP]           = useState<Profile | null>(null);
-  const [status, setStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading');
+  const [status, setStatus] = useState<'loading' | 'ready' | 'empty' | 'unavailable'>('loading');
 
   useEffect(() => {
     let alive = true;
@@ -27,6 +28,8 @@ export default function LegendHome() {
         if (d && d.source === 'live' && d.profile) {
           setP(d.profile as Profile);
           setStatus('ready');
+        } else if (d && d.source === 'empty') {
+          setStatus('empty');         // signed in, but no reputation earned yet
         } else {
           setStatus('unavailable');   // no session / backend down — honest, no sample
         }
@@ -70,6 +73,18 @@ export default function LegendHome() {
           </section>
         )}
 
+        {status === 'empty' && (
+          <section style={{ marginTop: 28, padding: '40px 24px', background: TEC_COLORS.surface, borderRadius: 14, textAlign: 'center' }}>
+            <div style={{ fontSize: 30 }}>🌱</div>
+            <div style={{ color: '#e7e7ea', fontWeight: 800, marginTop: 8, fontSize: 16 }}>Your Legend starts with your first outcome</div>
+            <p style={{ opacity: 0.65, fontSize: 13.5, lineHeight: 1.6, maxWidth: 460, margin: '8px auto 0' }}>
+              You&apos;re signed in, but you haven&apos;t earned a reputation record yet. Legend records
+              <strong> outcomes, never claims</strong> — so do something real: complete an Epic project, get
+              Zone-verified, make a sale in Commerce. Each verified outcome writes a permanent achievement here.
+            </p>
+          </section>
+        )}
+
         {status === 'ready' && p && (<>
         {/* Overall + identity */}
         <section style={{ marginTop: 24, padding: 20, background: TEC_COLORS.surface, borderRadius: 14, display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -87,6 +102,9 @@ export default function LegendHome() {
             </div>
           </div>
         </section>
+
+        {/* Visibility + share — the one thing the user controls (C-126). */}
+        <ProfileControls handle={p.handle} initial={p.visibility ?? 'PRIVATE'} />
 
         {/* Reputation dimensions */}
         <h2 style={{ color: TEC_COLORS.gold, fontSize: 16, marginTop: 28, marginBottom: 12 }}>Reputation scores</h2>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { resolveProfile } from '@/lib/legend/server';
+import { resolveOwnProfile } from '@/lib/legend/server';
 
 // GET /api/bff/legend/profile — the caller's OWN reputation profile (C-126).
 // Legend is the READ layer of economic achievement: it records OUTCOMES, not claims.
@@ -20,9 +20,12 @@ function ownerFromSession(req: NextRequest): string | null {
 
 export async function GET(req: NextRequest) {
   const owner = ownerFromSession(req);
-  const { profile, source } = await resolveProfile(owner);
+  // Own-view: the caller sees their OWN profile even when it is PRIVATE (the public API
+  // would 404 it). `source` is 'live' (has a record) · 'empty' (signed in, none yet) ·
+  // 'unavailable' (no session / backend down) — the page shows the honest state.
+  const { profile, source } = await resolveOwnProfile(owner);
   return NextResponse.json(
     { source, profile },
-    { headers: { 'Cache-Control': 'private, max-age=60' } },
+    { headers: { 'Cache-Control': 'private, max-age=30' } },
   );
 }

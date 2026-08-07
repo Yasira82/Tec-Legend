@@ -1,5 +1,5 @@
 import {
-  type Profile, type Achievement, type EvidenceSource,
+  type Profile, type Achievement, type EvidenceSource, type Visibility,
 } from './profile';
 
 // Server-only Legend backend access (C-126). Calls the real Legend read-layer
@@ -35,8 +35,10 @@ function profileFromBackend(p: Record<string, unknown>): Profile {
   const bdg = Array.isArray(p.badges) ? (p.badges as Record<string, unknown>[]) : [];
   const n = (v: unknown) => Number(v ?? 0);
   return {
+    handle:        p.owner ? String(p.owner) : undefined,
     displayName:   String(p.display_name ?? p.owner ?? ''),
     joinedAt:      day(p.joined_at),
+    visibility:    p.visibility ? (String(p.visibility).toUpperCase() as Visibility) : undefined,
     totalPiVolume: n(p.total_pi_volume),
     yearsActive:   n(p.years_active),
     scores: {
@@ -71,6 +73,78 @@ export async function resolveProfile(owner: string | null): Promise<ResolvedProf
       }
     } catch { /* unreachable → unavailable below */ }
   }
+  return { profile: null, source: 'unavailable' };
+}
+
+// The caller's OWN profile — including a PRIVATE / CONNECTIONS one (so a user always
+// sees their own reputation + can control its visibility). `owner` is derived from the
+// session by the BFF (never a client param, P6). Three honest states:
+//   'live'        → a profile exists (may be private) → returned with its visibility;
+//   'empty'       → signed in, but no reputation earned yet (no profile);
+//   'unavailable' → no session / backend down.
+export interface ResolvedOwnProfile { profile: Profile | null; source: 'live' | 'empty' | 'unavailable'; }
+
+export async function resolveOwnProfile(owner: string | null): Promise<ResolvedOwnProfile> {
+  if (!GW || !owner) return { profile: null, source: 'unavailable' };
+  try {
+    const res = await fetch(`${GW}/api/identity/legend/own/${encodeURIComponent(owner)}`, {
+      headers: gwHeaders(), cache: 'no-store',
+    });
+    if (res.ok) {
+      const p = (await res.json().catch(() => ({})))?.data?.profile;
+      if (p) return { profile: profileFromBackend(p as Record<string, unknown>), source: 'live' };
+      return { profile: null, source: 'empty' };   // signed in, no record yet
+    }
+  } catch { /* unreachable → unavailable below */ }
+  return { profile: null, source: 'unavailable' };
+}
+
+// Set the caller's OWN profile visibility (C-126 — the one user-controlled setting).
+// `owner` is derived from the session by the BFF (P6). Honest statuses (401 no session ·
+// 404 no profile earned yet · 400 invalid · 503 unreachable).
+export interface VisibilityResult { ok: boolean; status: number; visibility?: Visibility; error?: string }
+
+export async function setVisibility(owner: string | null, visibility: string): Promise<VisibilityResult> {
+  if (!owner) return { ok: false, status: 401, error: 'Sign in to change visibility.' };
+  if (!GW)    return { ok: false, status: 503, error: 'Legend is unavailable right now.' };
+  try {
+    const res = await fetch(`${GW}/api/identity/legend/own/${encodeURIComponent(owner)}/visibility`, {
+      method: 'PATCH', headers: gwHeaders(), body: JSON.stringify({ visibility }), cache: 'no-store',
+    });
+    const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    if (res.ok) {
+      const v = (json?.data as Record<string, unknown> | undefined)?.visibility;
+      return { ok: true, status: 200, visibility: (String(v ?? visibility).toUpperCase() as Visibility) };
+    }
+    const msg = res.status === 404 ? 'You haven’t earned a reputation record yet.'
+      : res.status === 400 ? 'Invalid visibility.'
+      : 'Could not update visibility. Please try again.';
+    return { ok: false, status: res.status, error: msg };
+  } catch {
+    return { ok: false, status: 503, error: 'Legend is unavailable right now.' };
+  }
+}
+
+// A PUBLIC reputation profile by username — the shareable "Pi Professional CV"
+// (/u/<username>). Public read: the backend only returns a PUBLIC profile; a private
+// or missing one both resolve to 'not-found' (indistinguishable by design — a private
+// profile must not be discoverable). An unreachable backend → 'unavailable'.
+export type PublicProfileSource = 'live' | 'not-found' | 'unavailable';
+
+export async function resolvePublicProfile(
+  username: string,
+): Promise<{ profile: Profile | null; source: PublicProfileSource }> {
+  if (!GW || !username.trim()) return { profile: null, source: 'unavailable' };
+  try {
+    const res = await fetch(`${GW}/api/identity/legend/profile/${encodeURIComponent(username.trim())}`, {
+      headers: gwHeaders(), cache: 'no-store',
+    });
+    if (res.ok) {
+      const p = (await res.json().catch(() => ({})))?.data?.profile;
+      if (p) return { profile: profileFromBackend(p as Record<string, unknown>), source: 'live' };
+    }
+    if (res.status === 404) return { profile: null, source: 'not-found' };
+  } catch { /* unreachable → unavailable below */ }
   return { profile: null, source: 'unavailable' };
 }
 
