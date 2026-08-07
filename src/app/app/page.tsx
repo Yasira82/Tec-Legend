@@ -38,6 +38,15 @@ export default function LegendHome() {
     return () => { alive = false; };
   }, []);
 
+  // A profile can have real achievements while its numeric scores are still 0 —
+  // Legend records the OUTCOME immediately, but the SCORES are computed by Analytics
+  // (C-126), which runs separately. Detect that state so the page reads as "earned,
+  // scores pending" instead of looking empty/broken.
+  const achievementCount = p?.achievements.length ?? 0;
+  const verifiedCount    = p?.achievements.filter((a) => a.verified).length ?? 0;
+  const scoresPending    = !!p && p.scores.overall === 0
+    && SCORE_DIMENSIONS.every((d) => p.scores[d.key] === 0);
+
   return (
     <main style={{ minHeight: '100vh', background: TEC_COLORS.bg, color: '#e7e7ea', padding: '32px 22px', fontFamily: 'system-ui, sans-serif' }}>
       <div style={{ maxWidth: 900, margin: '0 auto' }}>
@@ -86,11 +95,21 @@ export default function LegendHome() {
         )}
 
         {status === 'ready' && p && (<>
-        {/* Overall + identity */}
+        {/* Overall + identity. When Analytics hasn't scored yet, lead with the real,
+            earned achievement count instead of a bare "0" (which reads as broken). */}
         <section style={{ marginTop: 24, padding: 20, background: TEC_COLORS.surface, borderRadius: 14, display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 44, fontWeight: 900, color: TEC_COLORS.gold, lineHeight: 1 }}>{p.scores.overall}</div>
-            <div style={{ opacity: 0.6, fontSize: 12, marginTop: 4 }}>Overall</div>
+          <div style={{ textAlign: 'center', minWidth: 92 }}>
+            {scoresPending ? (
+              <>
+                <div style={{ fontSize: 44, fontWeight: 900, color: TEC_COLORS.gold, lineHeight: 1 }}>{achievementCount}</div>
+                <div style={{ opacity: 0.6, fontSize: 12, marginTop: 4 }}>{achievementCount === 1 ? 'achievement' : 'achievements'}</div>
+              </>
+            ) : (
+              <>
+                <div style={{ fontSize: 44, fontWeight: 900, color: TEC_COLORS.gold, lineHeight: 1 }}>{p.scores.overall}</div>
+                <div style={{ opacity: 0.6, fontSize: 12, marginTop: 4 }}>Overall</div>
+              </>
+            )}
           </div>
           <div style={{ flex: 1, minWidth: 220 }}>
             <div style={{ fontWeight: 700 }}>@{p.displayName}</div>
@@ -103,11 +122,25 @@ export default function LegendHome() {
           </div>
         </section>
 
+        {scoresPending && achievementCount > 0 && (
+          <div style={{ marginTop: 12, padding: '12px 14px', background: '#22C55E14', border: '1px solid #22C55E44', borderRadius: 12, fontSize: 12.5, lineHeight: 1.55, color: '#e7e7ea' }}>
+            🎉 You&apos;ve earned <strong>{achievementCount}</strong> {achievementCount === 1 ? 'achievement' : 'achievements'}
+            {verifiedCount > 0 ? ` (${verifiedCount} verified)` : ''} — that&apos;s your real reputation evidence, below.
+            The numeric <strong>scores</strong> are computed by <strong>Analytics</strong> from your activity (C-126);
+            they stay 0 until it processes your history. Legend records what happened — it never invents a score.
+          </div>
+        )}
+
         {/* Visibility + share — the one thing the user controls (C-126). */}
         <ProfileControls handle={p.handle} initial={p.visibility ?? 'PRIVATE'} />
 
         {/* Reputation dimensions */}
-        <h2 style={{ color: TEC_COLORS.gold, fontSize: 16, marginTop: 28, marginBottom: 12 }}>Reputation scores</h2>
+        <h2 style={{ color: TEC_COLORS.gold, fontSize: 16, marginTop: 28, marginBottom: scoresPending ? 4 : 12 }}>Reputation scores</h2>
+        {scoresPending && (
+          <p style={{ opacity: 0.6, fontSize: 12, margin: '0 0 12px', lineHeight: 1.5 }}>
+            Computed by Analytics from your verified activity — these fill in as your history builds.
+          </p>
+        )}
         <div style={{ display: 'grid', gap: 10, padding: 18, background: TEC_COLORS.surface, borderRadius: 12 }}>
           {SCORE_DIMENSIONS.map((d) => {
             const v = p.scores[d.key];
