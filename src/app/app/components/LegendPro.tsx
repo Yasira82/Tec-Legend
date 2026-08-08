@@ -73,7 +73,8 @@ export default function LegendPro() {
       <div style={{ background: TEC_COLORS.surface, border: `1px solid ${TEC_COLORS.gold}55`, borderRadius: 16, padding: 20, marginTop: 24 }}>
         <div style={{ fontSize: 15, fontWeight: 800, color: TEC_COLORS.gold }}>★ You’re on Pro</div>
         <div style={{ fontSize: 12, color: TEC_COLORS.subtext, marginTop: 6 }}>
-          Your subscription is active. Thanks for supporting TEC.
+          Your embeddable reputation badge is unlocked — set your profile to Public and grab
+          the embed snippet below to show it anywhere.
         </div>
       </div>
     );
@@ -89,7 +90,8 @@ export default function LegendPro() {
         <span style={{ color: TEC_COLORS.gold, fontWeight: 800 }}>π 10<span style={{ opacity: 0.6, fontSize: 12, fontWeight: 500 }}>/mo</span></span>
       </div>
       <p style={{ opacity: 0.75, fontSize: 13, margin: '8px 0 14px' }}>
-        Full achievement timeline · exportable Pi Professional CV · embeddable badges.
+        <strong style={{ color: TEC_COLORS.gold }}>Embeddable reputation badge</strong> — a live SVG for your
+        site / Pi store · full achievement timeline · exportable Pi Professional CV.
       </p>
       <button
         onClick={handleSubscribe}
