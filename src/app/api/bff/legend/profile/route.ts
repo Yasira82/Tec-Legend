@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { resolveOwnProfile } from '@/lib/legend/server';
+import { resolveOwnProfile, resolveProStatus, setShowcase } from '@/lib/legend/server';
 
 // GET /api/bff/legend/profile — the caller's OWN reputation profile (C-126).
 // Legend is the READ layer of economic achievement: it records OUTCOMES, not claims.
@@ -24,6 +24,21 @@ export async function GET(req: NextRequest) {
   // would 404 it). `source` is 'live' (has a record) · 'empty' (signed in, none yet) ·
   // 'unavailable' (no session / backend down) — the page shows the honest state.
   const { profile, source } = await resolveOwnProfile(owner);
+
+  // Legend Pro — SHOWCASE sync (C-126). The embeddable reputation badge is gated by the
+  // owner's LIVE subscription (commerce-owned truth, P5). Read Pro from the session token
+  // and reconcile the persisted flag when it has drifted (a lapsed Pro → badge falls back).
+  // This ONLY moves the marketing gate — records + scores are untouched. Best-effort:
+  // never blocks the read, and only runs when the owner actually has a profile.
+  if (profile) {
+    const token = req.cookies.get('tec_access_token')?.value ?? '';
+    const isPro = await resolveProStatus(token);
+    if (Boolean(profile.showcase) !== isPro) {
+      await setShowcase(owner, isPro);   // reconcile persisted flag with live entitlement
+      profile.showcase = isPro;          // reflect immediately in this response
+    }
+  }
+
   return NextResponse.json(
     { source, profile },
     { headers: { 'Cache-Control': 'private, max-age=30' } },

@@ -16,6 +16,13 @@ const gwHeaders = () => ({
   ...(process.env.INTERNAL_SECRET && { 'x-internal-key': process.env.INTERNAL_SECRET }),
 });
 
+// Header set for a user-scoped upstream read (commerce subscription status) — the
+// session JWT as Bearer, so the owner is resolved server-side (never a client field).
+const gwHeadersWithToken = (token: string) => ({
+  ...gwHeaders(),
+  Authorization: `Bearer ${token}`,
+});
+
 const day = (v: unknown) => String(v ?? '').slice(0, 10); // ISO datetime → YYYY-MM-DD
 
 function achievementFromBackend(a: Record<string, unknown>): Achievement {
@@ -39,6 +46,7 @@ function profileFromBackend(p: Record<string, unknown>): Profile {
     displayName:   String(p.display_name ?? p.owner ?? ''),
     joinedAt:      day(p.joined_at),
     visibility:    p.visibility ? (String(p.visibility).toUpperCase() as Visibility) : undefined,
+    showcase:      Boolean(p.showcase),
     totalPiVolume: n(p.total_pi_volume),
     yearsActive:   n(p.years_active),
     scores: {
@@ -123,6 +131,42 @@ export async function setVisibility(owner: string | null, visibility: string): P
   } catch {
     return { ok: false, status: 503, error: 'Legend is unavailable right now.' };
   }
+}
+
+// The caller's LIVE Pro entitlement (Legend Pro — C-126 §Revenue). Read from the
+// commerce subscription status with the session JWT — Legend never STORES billing
+// truth (P5, commerce-owned); it only reflects it. Pro only while the period is live
+// (active + not expired + a real paid plan). Any failure → false (fail closed).
+export async function resolveProStatus(token: string): Promise<boolean> {
+  if (!GW || !token) return false;
+  try {
+    const res = await fetch(`${GW}/api/commerce/subscriptions/status`, {
+      headers: gwHeadersWithToken(token), cache: 'no-store',
+    });
+    if (!res.ok) return false;
+    const d = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    const s = (d.data ?? d) as Record<string, unknown>;
+    const plan = String(s.plan ?? s.tier ?? '').toUpperCase();
+    const active  = s.isActive === true || s.active === true || (plan !== '' && plan !== 'FREE');
+    const expired = s.isExpired === true;
+    const end     = s.current_period_end ?? s.currentPeriodEnd ?? s.expires_at;
+    const notExpired = !expired && (!end || new Date(String(end)).getTime() > Date.now());
+    return active && notExpired && plan !== '' && plan !== 'FREE';
+  } catch { return false; }
+}
+
+// Sync the owner's SHOWCASE flag (Legend Pro — the embeddable badge gate) to match
+// their LIVE subscription. `owner` is derived from the session by the BFF (P6). Like
+// visibility, the backend never CREATES a profile from this (reputation is earned) →
+// a no-profile owner is a harmless no-op. Best-effort: a failure never blocks the read.
+export async function setShowcase(owner: string | null, on: boolean): Promise<boolean> {
+  if (!GW || !owner) return false;
+  try {
+    const res = await fetch(`${GW}/api/identity/legend/own/${encodeURIComponent(owner)}/showcase`, {
+      method: 'PATCH', headers: gwHeaders(), body: JSON.stringify({ showcase: on }), cache: 'no-store',
+    });
+    return res.ok;
+  } catch { return false; }
 }
 
 // A PUBLIC reputation profile by username — the shareable "Pi Professional CV"

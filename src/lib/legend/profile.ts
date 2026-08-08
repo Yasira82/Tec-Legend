@@ -51,6 +51,9 @@ export interface Profile {
   totalPiVolume: number;
   yearsActive:   number;
   visibility?: Visibility; // user-controlled (C-126) — only present on the owner's own view
+  showcase?:  boolean;     // Legend Pro — unlocks the embeddable reputation badge (marketing
+                           // surface ONLY; never affects the records/scores). Synced from the
+                           // owner's LIVE subscription by the BFF; Legend never stores billing.
 }
 
 // ── Sample profile (when live: scores computed by Analytics, records written by source apps) ──

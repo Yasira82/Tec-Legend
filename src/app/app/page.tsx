@@ -11,6 +11,7 @@ import { TEC_COLORS } from '@yasser172/tec-ui';
 import { SCORE_DIMENSIONS, SOURCE_META, type Profile } from '@/lib/legend/profile';
 import LegendPro from './components/LegendPro';
 import ProfileControls from './components/ProfileControls';
+import ShowcaseCard from './components/ShowcaseCard';
 
 export default function LegendHome() {
   // Real data end-to-end (C-135 §4): the caller's OWN live profile, or an honest
@@ -133,6 +134,9 @@ export default function LegendHome() {
 
         {/* Visibility + share — the one thing the user controls (C-126). */}
         <ProfileControls handle={p.handle} initial={p.visibility ?? 'PRIVATE'} />
+
+        {/* Legend Pro — the embeddable reputation badge (marketing surface only). */}
+        <ShowcaseCard handle={p.handle} showcase={p.showcase} visibility={p.visibility} />
 
         {/* Reputation dimensions */}
         <h2 style={{ color: TEC_COLORS.gold, fontSize: 16, marginTop: 28, marginBottom: scoresPending ? 4 : 12 }}>Reputation scores</h2>
