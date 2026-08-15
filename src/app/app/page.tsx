@@ -127,7 +127,7 @@ export default function LegendHome() {
           <div style={{ marginTop: 12, padding: '12px 14px', background: '#22C55E14', border: '1px solid #22C55E44', borderRadius: 12, fontSize: 12.5, lineHeight: 1.55, color: '#e7e7ea' }}>
             🎉 You&apos;ve earned <strong>{achievementCount}</strong> {achievementCount === 1 ? 'achievement' : 'achievements'}
             {verifiedCount > 0 ? ` (${verifiedCount} verified)` : ''} — that&apos;s your real reputation evidence, below.
-            The numeric <strong>scores</strong> are computed by <strong>Analytics</strong> from your activity (C-126);
+            The numeric <strong>scores</strong> are computed by <strong>Analytics</strong> from your activity;
             they stay 0 until it processes your history. Legend records what happened — it never invents a score.
           </div>
         )}
@@ -184,7 +184,7 @@ export default function LegendHome() {
         </div>
 
         <p style={{ opacity: 0.55, fontSize: 12, marginTop: 20, lineHeight: 1.6, borderLeft: `2px solid ${TEC_COLORS.gold}55`, paddingLeft: 12 }}>
-          <strong>Read layer (C-126).</strong> Legend records outcomes, never claims — you can&apos;t add an
+          <strong>Read layer.</strong> Legend records outcomes, never claims — you can&apos;t add an
           achievement manually. Records are written by the source apps (Commerce · Epic · FundX · Connection ·
           Assets) and verified by Zone; scores are computed by Analytics. Legend serves — read-only.
         </p>

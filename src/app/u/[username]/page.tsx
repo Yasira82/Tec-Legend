@@ -105,7 +105,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ user
 
     <p style={{ opacity: 0.55, fontSize: 12, marginTop: 20, lineHeight: 1.6, borderLeft: `2px solid ${TEC_COLORS.gold}55`, paddingLeft: 12 }}>
       Every record here originates from verified activity across the TEC ecosystem and is confirmed by Zone;
-      scores are computed by Analytics. Legend records outcomes, never claims (C-126).
+      scores are computed by Analytics. Legend records outcomes, never claims.
     </p>
     <Link href="/app" style={{ display: 'inline-block', marginTop: 16, color: TEC_COLORS.gold, fontSize: 13, textDecoration: 'none' }}>Build your own Legend →</Link>
   </>);
