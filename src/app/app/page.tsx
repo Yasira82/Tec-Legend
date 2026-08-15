@@ -62,7 +62,7 @@ export default function LegendHome() {
             )}
           </div>
           <p style={{ opacity: 0.7, margin: 0, fontSize: 14 }}>
-            Reputation Runtime — your Legend is not what you say you did; it&apos;s what the ecosystem confirms.
+            Your reputation isn&apos;t what you say you did — it&apos;s what your activity confirms.
           </p>
         </header>
 
@@ -127,8 +127,9 @@ export default function LegendHome() {
           <div style={{ marginTop: 12, padding: '12px 14px', background: '#22C55E14', border: '1px solid #22C55E44', borderRadius: 12, fontSize: 12.5, lineHeight: 1.55, color: '#e7e7ea' }}>
             🎉 You&apos;ve earned <strong>{achievementCount}</strong> {achievementCount === 1 ? 'achievement' : 'achievements'}
             {verifiedCount > 0 ? ` (${verifiedCount} verified)` : ''} — that&apos;s your real reputation evidence, below.
-            The numeric <strong>scores</strong> are computed by <strong>Analytics</strong> from your activity;
-            they stay 0 until it processes your history. Legend records what happened — it never invents a score.
+            The numeric <strong>scores</strong> are calculated from your verified activity;
+            they stay 0 until your history is processed. Legend records what actually
+            happened — it never invents a score.
           </div>
         )}
 
@@ -142,7 +143,7 @@ export default function LegendHome() {
         <h2 style={{ color: TEC_COLORS.gold, fontSize: 16, marginTop: 28, marginBottom: scoresPending ? 4 : 12 }}>Reputation scores</h2>
         {scoresPending && (
           <p style={{ opacity: 0.6, fontSize: 12, margin: '0 0 12px', lineHeight: 1.5 }}>
-            Computed by Analytics from your verified activity — these fill in as your history builds.
+            Calculated from your verified activity — these fill in as your history builds.
           </p>
         )}
         <div style={{ display: 'grid', gap: 10, padding: 18, background: TEC_COLORS.surface, borderRadius: 12 }}>
@@ -184,9 +185,9 @@ export default function LegendHome() {
         </div>
 
         <p style={{ opacity: 0.55, fontSize: 12, marginTop: 20, lineHeight: 1.6, borderLeft: `2px solid ${TEC_COLORS.gold}55`, paddingLeft: 12 }}>
-          <strong>Read layer.</strong> Legend records outcomes, never claims — you can&apos;t add an
-          achievement manually. Records are written by the source apps (Commerce · Epic · FundX · Connection ·
-          Assets) and verified by Zone; scores are computed by Analytics. Legend serves — read-only.
+          <strong>Earned, not claimed.</strong> You can&apos;t add an achievement manually.
+          Everything here comes from your real, verified activity across TEC — that&apos;s
+          what makes it trustworthy.
         </p>
         </>)}
 

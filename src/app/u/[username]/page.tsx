@@ -45,7 +45,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ user
         <span style={{ fontSize: 11, color: '#22C55E', border: '1px solid #22C55E55', borderRadius: 999, padding: '2px 10px' }}>public reputation</span>
       </div>
       <p style={{ opacity: 0.7, margin: 0, fontSize: 14 }}>
-        A Pi Professional CV — reputation from verified activity, not claims (TEC Legend · C-126).
+        A Pi Professional CV — reputation from verified activity, not claims (TEC Legend).
       </p>
     </header>
 
@@ -105,7 +105,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ user
 
     <p style={{ opacity: 0.55, fontSize: 12, marginTop: 20, lineHeight: 1.6, borderLeft: `2px solid ${TEC_COLORS.gold}55`, paddingLeft: 12 }}>
       Every record here originates from verified activity across the TEC ecosystem and is confirmed by Zone;
-      scores are computed by Analytics. Legend records outcomes, never claims.
+      scores are calculated from verified activity. Legend records outcomes, never claims.
     </p>
     <Link href="/app" style={{ display: 'inline-block', marginTop: 16, color: TEC_COLORS.gold, fontSize: 13, textDecoration: 'none' }}>Build your own Legend →</Link>
   </>);
