@@ -1,10 +1,11 @@
 import { RefCapture } from '@/components/referral/RefCapture';
 import { RefApply } from '@/components/referral/RefApply';
+import { LocaleProvider } from '@/lib/i18n';
 import type { Metadata } from 'next';
 import '@/styles/tec-design-tokens.css';
 
 export const metadata: Metadata = {
-  title:       'TEC Legend — Reputation Runtime',
+  title:       'TEC Legend — Your Reputation',
   description: 'TEC Legend — permanent, verifiable, portable reputation from your Pi economic activity (read-only).',
 };
 
@@ -61,9 +62,11 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <RefCapture />
-        <RefApply />
-        {children}
+        <LocaleProvider>
+          <RefCapture />
+          <RefApply />
+          {children}
+        </LocaleProvider>
       </body>
     </html>
   );

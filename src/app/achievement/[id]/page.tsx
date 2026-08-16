@@ -56,8 +56,8 @@ export default async function AchievementDetail({ params }: { params: Promise<{ 
 
         <p style={{ marginTop: 20, fontSize: 12, opacity: 0.55, lineHeight: 1.6, borderLeft: `2px solid ${TEC_COLORS.gold}55`, paddingLeft: 12 }}>
           This record was <strong>written by {s.label}</strong> from real activity and{' '}
-          {a.verified ? 'verified by Zone' : 'is not yet Zone-verified'} — Legend never authors it (C-126).
-          Legend is the read layer; the source app is the write layer.
+          {a.verified? 'verified by Zone': 'is not yet Zone-verified'} — Legend never authors it.
+          Every achievement here comes from your real activity in another TEC app.
         </p>
       </div>
     </main>
