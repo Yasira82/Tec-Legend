@@ -58,7 +58,7 @@ function profileFromBackend(p: Record<string, unknown>): Profile {
       overall:      n(p.score_overall),
     },
     achievements: ach.map(achievementFromBackend),
-    badges:       bdg.map((b) => ({ id: String(b.slug ?? ''), label: String(b.label ?? ''), tone: String(b.tone ?? '#FBBF24') })),
+    badges:       bdg.map((b) => ({ id: String(b.slug ?? ''), label: String(b.label ?? ''), tone: String(b.tone ?? '#FBB44A') })),
   };
 }
 

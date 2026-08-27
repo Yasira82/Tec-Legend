@@ -78,7 +78,7 @@ export const PROFILE: Profile = {
     { id: 'ach-zone-early',  title: 'Zone early verifier',       description: 'Among the first verified entities in Zone.',                        source: 'zone',       verified: true,  earnedAt: '2026-02-15' },
   ],
   badges: [
-    { id: 'top-merchant',      label: 'Top Merchant',      tone: '#FBBF24' },
+    { id: 'top-merchant',      label: 'Top Merchant',      tone: '#FBB44A' },
     { id: 'verified-creator',  label: 'Verified Creator',  tone: '#8B5CF6' },
     { id: 'community-builder', label: 'Community Builder', tone: '#22C55E' },
     { id: 'zone-pioneer',      label: 'Zone Pioneer',      tone: '#06B6D4' },
