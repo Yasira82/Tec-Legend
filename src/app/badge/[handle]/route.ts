@@ -40,11 +40,11 @@ function badgeSvg(message: string, live: boolean): string {
     <rect width="${w}" height="${h}" fill="url(#s)"/>
   </g>
   <g transform="translate(6,3.4)" aria-hidden="true">
-    <path d="M2 1 H12 V4 C12 7 10 9 7 9.4 C4 9 2 7 2 4 Z" fill="#FBBF24" opacity="0.95"/>
-    <path d="M2 1 H0.4 V2.4 C0.4 4 1.4 5 3 5" fill="none" stroke="#FBBF24" stroke-width="1.2"/>
-    <path d="M12 1 H13.6 V2.4 C13.6 4 12.6 5 11 5" fill="none" stroke="#FBBF24" stroke-width="1.2"/>
-    <rect x="6" y="9.2" width="2" height="3" fill="#FBBF24"/>
-    <rect x="4" y="12" width="6" height="1.8" rx="0.6" fill="#FBBF24"/>
+    <path d="M2 1 H12 V4 C12 7 10 9 7 9.4 C4 9 2 7 2 4 Z" fill="#FBB44A" opacity="0.95"/>
+    <path d="M2 1 H0.4 V2.4 C0.4 4 1.4 5 3 5" fill="none" stroke="#FBB44A" stroke-width="1.2"/>
+    <path d="M12 1 H13.6 V2.4 C13.6 4 12.6 5 11 5" fill="none" stroke="#FBB44A" stroke-width="1.2"/>
+    <rect x="6" y="9.2" width="2" height="3" fill="#FBB44A"/>
+    <rect x="4" y="12" width="6" height="1.8" rx="0.6" fill="#FBB44A"/>
   </g>
   <g fill="${msgText}" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="11">
     <text x="${labelMid}" y="14" fill="#010101" fill-opacity=".3">${labelText}</text>
