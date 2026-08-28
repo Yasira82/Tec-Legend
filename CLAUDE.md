@@ -131,13 +131,13 @@ Legend V0/V1 — Reputation preview (customized from template):
   ✅ /app themed: reputation profile (scores + achievements + badges) + Legend Pro (real Pi U2A)
   ✅ /achievement/[id] detail (evidence source + Zone-verified) + BFF /api/bff/legend/profile
 
-Next (before live):
-  □ Register Pi App ID (Pi Developer Portal) → Vercel NEXT_PUBLIC_PI_APP_ID +
+Live on Mainnet — all complete (SSoT: architecture/app-fleet.yaml):
+  ✅ Register Pi App ID (Pi Developer Portal) → Vercel NEXT_PUBLIC_PI_APP_ID +
     API_GATEWAY_URL · INTERNAL_SECRET · SSO_SECRET · PI_SANDBOX=false.
-  □ payment-service: set PI_API_KEY_LEGEND on Railway (approve→502 otherwise, C-12 §11).
-  □ Hub SSO: add legend.tecosystem.app + tec-legend.vercel.app to Hub /api/auth/sso
+  ✅ payment-service: set PI_API_KEY_LEGEND on Railway (approve→502 otherwise, C-12 §11).
+  ✅ Hub SSO: add legend.tecosystem.app + tec-legend.vercel.app to Hub /api/auth/sso
     ALLOWED_TARGETS + Hub domain registry.
-  □ Deploy (Vercel) + runtime-verify login (C-123) + a real Legend Pro payment
+  ✅ Deploy (Vercel) + runtime-verify login (C-123) + a real Legend Pro payment
     Mode 1 (Hub) AND Mode 2 (standalone).
 
 Legend V1+ (post-Portal — C-126): consume Redis Streams (payment.completed.v1,
