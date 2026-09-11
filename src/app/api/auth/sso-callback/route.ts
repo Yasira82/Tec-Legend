@@ -12,6 +12,7 @@ import { HUB_HOSTS }                 from '@/lib/pi-network';
 const ALLOWED_AUDIENCES = [
   'https://tec-legend.vercel.app',
   'https://legend.tecosystem.app',
+  'https://legend-test.tecosystem.app',
 ];
 const DEFAULT_REDIRECT = '/app';
 
