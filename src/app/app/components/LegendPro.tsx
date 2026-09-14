@@ -13,7 +13,7 @@ import {
   createU2APayment,
 } from '@/lib/pi-payment';
 
-const LEGEND_PRO = { id: 'legend-pro', name: 'Legend Pro (monthly)', price: 10 };
+const LEGEND_PRO = { id: 'legend_pro_monthly', name: 'Legend Pro (monthly)', price: 10 };
 
 export default function LegendPro() {
   const [piReady, setPiReady] = useState(false);
@@ -67,7 +67,7 @@ export default function LegendPro() {
     if (!internalId) { setStatus('Could not start payment.'); return; }
 
     setStatus('Awaiting Pi approval…');
-    const result = await createU2APayment(price, name, { item_id: id }, internalId);
+    const result = await createU2APayment(price, name, { item_id: id, plan: 'PRO' }, internalId);
     setStatus(
       result.success ? `✅ Subscribed — txid ${result.txid}` :
       result.status === 'cancelled' ? 'Payment cancelled.' :
