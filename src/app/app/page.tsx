@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { TEC_COLORS } from '@yasser172/tec-ui';
 import { useTranslation } from '@/lib/i18n';
+import { useMe } from '@/lib-client/hooks/useMe';
 import { SCORE_DIMENSIONS, SOURCE_META, type Profile } from '@/lib/legend/profile';
 import LegendPro from './components/LegendPro';
 import ProfileControls from './components/ProfileControls';
@@ -18,6 +19,7 @@ import { SettingsView } from './components/SettingsView';
 
 export default function LegendHome() {
   const { t } = useTranslation();
+  const me = useMe();   // C19: who is asking decides what an empty page says
   const [tab, setTab] = useState<LegendTab>('profile');
 
   // Real data end-to-end (C-135 §4): the caller's OWN live profile, or an honest
@@ -89,11 +91,12 @@ export default function LegendHome() {
           {status === 'unavailable' && (
             <section style={{ marginTop: 28, padding: '40px 24px', background: TEC_COLORS.surface, borderRadius: 14, textAlign: 'center' }}>
               <div style={{ fontSize: 30 }}>🏅</div>
-              <div style={{ color: '#e7e7ea', fontWeight: 800, marginTop: 8, fontSize: 16 }}>No reputation profile yet</div>
-              <p style={{ opacity: 0.65, fontSize: 13.5, lineHeight: 1.6, maxWidth: 420, margin: '8px auto 0' }}>
-                Sign in with Pi to see your Legend. Your reputation is built from verified activity across the
-                ecosystem (Commerce · Epic · FundX · Connection · Assets) — it appears here once you have records.
-              </p>
+              {!me.loading && (<>
+                <div style={{ color: '#e7e7ea', fontWeight: 800, marginTop: 8, fontSize: 16 }}>{me.authenticated ? t.legend.loadState.downTitle : t.legend.loadState.signedOutTitle}</div>
+                <p style={{ opacity: 0.65, fontSize: 13.5, lineHeight: 1.6, maxWidth: 420, margin: '8px auto 0' }}>
+                  {me.authenticated ? t.legend.loadState.down : t.legend.loadState.signedOut}
+                </p>
+              </>)}
             </section>
           )}
 

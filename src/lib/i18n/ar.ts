@@ -24,6 +24,12 @@ export const ar = {
   },
   legend: {
     brand:   'TEC Legend',
+    loadState: {
+      signedOutTitle: 'لسه مفيش ملف سمعة',
+      signedOut:      'سجّل الدخول بـ Pi عشان تشوف Legend بتاعك. سمعتك بتتبني من نشاط موثّق في المنظومة (Commerce · Epic · FundX · Connection · Assets) — وبتظهر هنا لما يبقى ليك سجلات.',
+      downTitle:      'معرفناش نحمّل Legend بتاعك',
+      down:           'إنت مسجّل دخول، بس Legend مردّش دلوقتي. جرّب تاني بعد شوية — مش هنعرض حاجة بدل ما نخمّن.',
+    },
     tagline: 'سمعتك ليست ما تقوله عن نفسك — بل ما يؤكده نشاطك الفعلي.',
     nav: {
       profile:      'الملف',

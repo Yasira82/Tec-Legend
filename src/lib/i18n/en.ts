@@ -24,6 +24,14 @@ export const en = {
   },
   legend: {
     brand:   'TEC Legend',
+    // C19 — "no session" and "signed in, but the backend did not answer" are
+    // different states; both used to say "Sign in with Pi".
+    loadState: {
+      signedOutTitle: 'No reputation profile yet',
+      signedOut:      'Sign in with Pi to see your Legend. Your reputation is built from verified activity across the ecosystem (Commerce · Epic · FundX · Connection · Assets) — it appears here once you have records.',
+      downTitle:      'Couldn\'t load your Legend',
+      down:           'You\'re signed in, but Legend didn\'t answer just now. Try again in a moment — nothing is shown rather than a guess.',
+    },
     tagline: "Your reputation isn't what you say you did — it's what your activity confirms.",
     nav: {
       profile:      'Profile',
