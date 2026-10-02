@@ -1,6 +1,7 @@
 import {
   type Profile, type Achievement, type EvidenceSource, type Visibility,
 } from './profile';
+import { APP_SOURCE } from '@/lib/app-source';
 
 // Server-only Legend backend access (C-126). Calls the real Legend read-layer
 // (identity-service) via the gateway with the inter-service key, and maps the
@@ -140,7 +141,7 @@ export async function setVisibility(owner: string | null, visibility: string): P
 export async function resolveProStatus(token: string): Promise<boolean> {
   if (!GW || !token) return false;
   try {
-    const res = await fetch(`${GW}/api/commerce/subscriptions/status`, {
+    const res = await fetch(`${GW}/api/commerce/subscriptions/status?app=${encodeURIComponent(APP_SOURCE)}`, {
       headers: gwHeadersWithToken(token), cache: 'no-store',
     });
     if (!res.ok) return false;
