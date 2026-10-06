@@ -1,5 +1,7 @@
 'use client';
 
+import { SignInGate } from '@/components/pi/SignInGate';
+
 // TEC Legend — Reputation home (C-126), read-only V1.
 // The reputation profile: scores (Analytics-computed) + achievements (records
 // written by the source apps) + badges. Legend records OUTCOMES, not claims —
@@ -17,7 +19,7 @@ import ShowcaseCard from './components/ShowcaseCard';
 import { BottomNav, type LegendTab } from './components/BottomNav';
 import { SettingsView } from './components/SettingsView';
 
-export default function LegendHome() {
+function LegendHome() {
   const { t } = useTranslation();
   const me = useMe();   // C19: who is asking decides what an empty page says
   const [tab, setTab] = useState<LegendTab>('profile');
@@ -244,4 +246,11 @@ export default function LegendHome() {
       <BottomNav active={tab} onSelect={setTab} />
     </main>
   );
+}
+
+// The door: a sign-in button before any screen when there is no session
+// (SignInGate — C-123 §10; owner, 2026-10-06). A visit from the Hub arrives
+// signed in (§12) and goes straight through.
+export default function LegendHomeGated() {
+  return <SignInGate><LegendHome /></SignInGate>;
 }
