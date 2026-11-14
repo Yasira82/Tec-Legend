@@ -2,6 +2,7 @@ import {
   type Profile, type Achievement, type EvidenceSource, type Visibility,
 } from './profile';
 import { APP_SOURCE } from '@/lib/app-source';
+import { gatewayFetch } from '@/lib/gateway-fetch';
 
 // Server-only Legend backend access (C-126). Calls the real Legend read-layer
 // (identity-service) via the gateway with the inter-service key, and maps the
@@ -72,7 +73,7 @@ export interface ResolvedProfile { profile: Profile | null; source: 'live' | 'un
 export async function resolveProfile(owner: string | null): Promise<ResolvedProfile> {
   if (GW && owner) {
     try {
-      const res = await fetch(`${GW}/api/identity/legend/profile/${encodeURIComponent(owner)}`, {
+      const res = await gatewayFetch(`${GW}/api/identity/legend/profile/${encodeURIComponent(owner)}`, {
         headers: gwHeaders(), cache: 'no-store',
       });
       if (res.ok) {
@@ -96,7 +97,7 @@ export interface ResolvedOwnProfile { profile: Profile | null; source: 'live' | 
 export async function resolveOwnProfile(owner: string | null): Promise<ResolvedOwnProfile> {
   if (!GW || !owner) return { profile: null, source: 'unavailable' };
   try {
-    const res = await fetch(`${GW}/api/identity/legend/own/${encodeURIComponent(owner)}`, {
+    const res = await gatewayFetch(`${GW}/api/identity/legend/own/${encodeURIComponent(owner)}`, {
       headers: gwHeaders(), cache: 'no-store',
     });
     if (res.ok) {
@@ -117,7 +118,7 @@ export async function setVisibility(owner: string | null, visibility: string): P
   if (!owner) return { ok: false, status: 401, error: 'Sign in to change visibility.' };
   if (!GW)    return { ok: false, status: 503, error: 'Legend is unavailable right now.' };
   try {
-    const res = await fetch(`${GW}/api/identity/legend/own/${encodeURIComponent(owner)}/visibility`, {
+    const res = await gatewayFetch(`${GW}/api/identity/legend/own/${encodeURIComponent(owner)}/visibility`, {
       method: 'PATCH', headers: gwHeaders(), body: JSON.stringify({ visibility }), cache: 'no-store',
     });
     const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
@@ -141,7 +142,7 @@ export async function setVisibility(owner: string | null, visibility: string): P
 export async function resolveProStatus(token: string): Promise<boolean> {
   if (!GW || !token) return false;
   try {
-    const res = await fetch(`${GW}/api/commerce/subscriptions/status?app=${encodeURIComponent(APP_SOURCE)}`, {
+    const res = await gatewayFetch(`${GW}/api/commerce/subscriptions/status?app=${encodeURIComponent(APP_SOURCE)}`, {
       headers: gwHeadersWithToken(token), cache: 'no-store',
     });
     if (!res.ok) return false;
@@ -166,7 +167,7 @@ export async function resolveProStatus(token: string): Promise<boolean> {
 export async function setShowcase(owner: string | null, on: boolean): Promise<boolean> {
   if (!GW || !owner) return false;
   try {
-    const res = await fetch(`${GW}/api/identity/legend/own/${encodeURIComponent(owner)}/showcase`, {
+    const res = await gatewayFetch(`${GW}/api/identity/legend/own/${encodeURIComponent(owner)}/showcase`, {
       method: 'PATCH', headers: gwHeaders(), body: JSON.stringify({ showcase: on }), cache: 'no-store',
     });
     return res.ok;
@@ -184,7 +185,7 @@ export async function resolvePublicProfile(
 ): Promise<{ profile: Profile | null; source: PublicProfileSource }> {
   if (!GW || !username.trim()) return { profile: null, source: 'unavailable' };
   try {
-    const res = await fetch(`${GW}/api/identity/legend/profile/${encodeURIComponent(username.trim())}`, {
+    const res = await gatewayFetch(`${GW}/api/identity/legend/profile/${encodeURIComponent(username.trim())}`, {
       headers: gwHeaders(), cache: 'no-store',
     });
     if (res.ok) {
@@ -204,7 +205,7 @@ export interface ResolvedAchievement { achievement: Achievement | null; source: 
 export async function resolveAchievement(id: string): Promise<ResolvedAchievement> {
   if (GW) {
     try {
-      const res = await fetch(`${GW}/api/identity/legend/achievement/${encodeURIComponent(id)}`, {
+      const res = await gatewayFetch(`${GW}/api/identity/legend/achievement/${encodeURIComponent(id)}`, {
         headers: gwHeaders(), cache: 'no-store',
       });
       if (res.ok) {
